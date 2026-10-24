@@ -1,0 +1,8 @@
+location-ping edge listening on 127.0.0.1:43001, kafka broker 127.0.0.1:9092, topic "location-pings-rollup-bench"
+corpus: 2000 devices x 20 pings = 40000 unique pings; 42000 delivered (4.76% duplicates, targeting 5.00%)
+send complete in 200.933128ms over up to 400 concurrent WebSocket connections
+reference oracle: 400 cells occupied, digest 229bba6adf589330fd0af97ffcdd52bc54fc00058af5e62c320c0e1edaef758a
+kafka consumer: 40000 pings actually landed
+incremental rollup: 400 cells occupied, digest 229bba6adf589330fd0af97ffcdd52bc54fc00058af5e62c320c0e1edaef758a
+
+RESULT: per-cell supply counts bit-identical after a 4.76%-duplicated, fully reordered replay: true

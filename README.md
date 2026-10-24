@@ -48,6 +48,48 @@ cost budget for this build session, every claim below was measured with one
 genuine attempt rather than the playbook's usual up-to-three, disclosed
 here rather than hidden.
 
+**Fourth extension (Oct. 2026): a location-ping ingest edge with per-H3-cell
+supply rollups, built for an Uber ride-hail marketplace resume req, sharing
+the same edge-dedup-then-produce-or-spool shape as the original telemetry
+gateway above.** A fourth Go edge (`internal/locationping`) reuses
+`internal/ingest.Dedup` directly (the dedup key, `(device_id, sequence)`, is
+identical to the original gateway's), fans deduplicated location pings out
+to Kafka keyed by an H3-inspired hex cell instead of by device id, and
+spills to disk under backpressure with the same concurrent-drainer design as
+the original gateway. A consumer (`internal/supplyrollup`) applies landed
+pings to a Redis-backed per-cell supply rollup, taking each device's
+highest-sequence ping as its true current position regardless of delivery
+order, validated against an independent from-scratch recompute over the
+full accepted ping set. This extension's numbers are the unedited output of
+a real run, in `docs/`, including a topic-auto-creation bug (the same shape
+as the delivery-stats extension's own) and a genuinely surprising
+concurrency threshold in the sustained-throughput measurement; see Findings.
+
+**What the location-ping extension is, and is not:**
+
+- **An H3-inspired hex grid, not Uber's own H3 library.** `internal/h3cell`
+  reimplements the one property this extension's claims need (every
+  lat/lon maps deterministically to one cell id) as an axial hex grid over
+  an equirectangular projection, not H3's real icosahedral projection,
+  because this build machine has no CGO path to libh3 and no apt package
+  for it. Cell ids are this package's own strings, not H3 indexes, and are
+  not interchangeable with real H3 cell ids; the "H3 spatial indexing"
+  skill-line claim rests on `batched-rider-driver-matching`'s own build of
+  the same idea, not on this disclosure.
+- **Simulated devices and a simulated outage, stated as such**, the same
+  disclosed simulation convention the original telemetry gateway above
+  uses: real WebSocket clients making real TCP connections to a real
+  running edge, a real Kafka broker, and a real Redis instance, but a
+  producer told to refuse writes rather than the broker process itself
+  being stopped.
+- **Latest-sequence-wins, not first-write-wins.** `supplyrollup.
+  IncrementalEngine` keeps each device's highest-applied sequence number in
+  local process memory and ignores any ping at or below it, which is what
+  makes the per-cell membership well-defined regardless of delivery order;
+  see Architecture.
+- **A single-broker Kafka, single-instance Redis setup**, the same
+  single-node honesty disclosure as the three extensions above.
+
 **What the delivery-stats extension is, and is not:**
 
 - **Simulated provider webhooks over a simulated message corpus, stated as
@@ -288,6 +330,66 @@ question `deliverythroughput` already answers at a realistic, honest scale;
 the scale benchmark's own question is entirely about ClickHouse's rollup
 accounting once the rows exist.
 
+### Location-ping extension architecture
+
+```
+  proto/
+    locationping.proto     # LocationPing: device_id, sequence, timestamp_ms, lat, lon
+    locationping.pb.go      # generated
+  internal/
+    h3cell/
+      h3cell.go              # own axial hex grid: lat/lon -> cell id, cell id -> center
+      h3cell_test.go           # cell stability, distinctness, and center round-trip
+    locationping/
+      spool.go                 # append-only length-prefixed disk overflow queue for LocationPing
+      pipeline.go               # dedup (shared ingest.Dedup) -> produce; on failure -> spool
+    locationwsserver/
+      server.go                # one WebSocket connection per device, binary protobuf frames
+    simfleet/
+      corpus.go                 # builds and drives the duplicated/reordered device corpus;
+                                  # each device steps through a ring of cells, not one fixed point
+    supplyrollup/
+      incremental.go             # Redis-backed per-cell membership, latest-sequence-wins
+      recompute.go                # from-scratch, independent per-cell membership from all pings
+      digest.go                    # deterministic SHA-256 reduction for the bit-identical check
+      recompute_test.go             # stale-sequence and reorder/duplication-invariance tests
+  internal/kafkaclient/
+    locationping_producer.go     # produce keyed by H3 cell; partition-direct read-back
+  cmd/
+    locationpingthroughputbench/main.go  # sustained-throughput benchmark
+    locationpingoutagebench/main.go       # 60-second broker-outage benchmark
+    supplyrollupbench/main.go              # end-to-end bit-identical-after-reorder benchmark
+```
+
+**Why `locationping` reuses `ingest.Dedup` directly instead of defining its
+own, the way `eventingest` and `deliverystats` each define their own.** The
+dedup key shape is the actual test: a storefront event already carries a
+client-assigned `event_id`, a different shape from `(device_id, sequence)`,
+which is why `eventingest.EventDedup` shares no code with `ingest.Dedup`.
+A location ping's dedup key is the identical `(device_id, sequence)` pair
+the original telemetry `Reading` uses, so reusing the same type is the
+honest design, not a shortcut; see `internal/ingest/dedup.go`'s own doc
+comment for the general rule this follows.
+
+**Why the per-cell rollup keeps "latest sequence applied" in local process
+memory instead of in Redis.** `IncrementalEngine.ApplyPing` needs to decide,
+for every incoming ping, whether it is newer than the position already on
+record for that device. Keeping that check in Redis would need either a Lua
+script or a `WATCH`/`MULTI` transaction to stay race-free under concurrent
+appliers; this project's rollup consumer is a single goroutine applying
+pings one at a time, so an in-process map gives the identical correctness
+guarantee without the extra round trip, and is disclosed as a
+single-consumer design choice, not a claim that this scales to concurrent
+consumers.
+
+**Why `Recompute` takes the whole delivered corpus, duplicates included,
+rather than a deduped set.** Taking each device's highest-sequence ping as
+its final position is already duplicate- and order-invariant: a duplicate
+of an already-seen sequence number changes nothing, and processing order
+does not matter because the comparison (`existing >= p.Sequence`) only ever
+looks at sequence numbers, never arrival order. This is what
+`TestDigestStableUnderReorderAndDuplication` pins directly.
+
 ## Validation
 
 - **Go tests, 7 new cases, `-race` clean**, mirroring `eventingest`'s own
@@ -337,6 +439,18 @@ accounting once the rows exist.
   ClickHouse recompute over the entire event log, using `DiffSets`. A
   segment is only reported as matching if the two sets are identical, not
   merely the same size.
+
+- **Go tests, 5 new cases, `-race` clean**: `h3cell`'s nearby-points-share-a-
+  cell, distinct-points-differ, and center-round-trips-into-the-same-cell
+  properties, and `supplyrollup`'s stale-sequence-is-ignored and
+  digest-stable-under-reorder-and-duplication properties. Full output:
+  `docs/go_test_output.txt`.
+- **`supplyrollupbench` is its own end-to-end validation**, the same shape
+  as `loadgen`: an independent `Recompute`-and-`Digest` reference and the
+  real Redis-materialized rollup (built from what actually landed in Kafka,
+  applied in Kafka's own read-back order, itself not the original send
+  order) are compared directly, and the benchmark fails loudly on any
+  digest mismatch.
 
 ## Findings
 
@@ -430,6 +544,41 @@ calling `kafkaclient.EnsureTopic` before the send phase in `deliverygen`,
 `deliverythroughput` and `deliverygateway` (`deliveryburst` already created
 its topic, which is why it worked on the first attempt). After the fix,
 `deliverygen`'s correctness run passed cleanly on the next attempt.
+
+**Location-ping extension findings.** The first run of
+`locationpingthroughputbench` reported `sent (accepted): 4916812 ... of
+accepted: 0 actually produced to kafka, 4916812 fell back to the disk
+spool`, the same topic-auto-creation gap the delivery-stats extension hit
+("this broker has topic auto-creation disabled"), reproduced here because
+this benchmark's topic name was new. Fixed the same way, by calling
+`kafkaclient.EnsureTopic` before the send phase in all three new `cmd/`
+benchmarks.
+
+**After that fix, the throughput benchmark still measured only 558
+pings/sec against a 35,000+ claim, and the fix was not a dedup or Kafka
+bug at all.** The wrong hypothesis, briefly, was that the H3-cell key
+computation (`fmt.Sprintf` plus a trig call per message) was the bottleneck.
+The measurement that discriminated it: an isolated single-caller,
+single-message `WriteMessages` loop measured a flat 10.6ms per call
+regardless of payload, exactly this producer's `BatchTimeout`. The actual
+cause was concurrency, not computation: with `Async: false` and one message
+submitted per call, a goroutine's call does not return until that
+message's batch flushes, so the achievable rate with N concurrent senders
+is bounded by roughly N messages per `BatchTimeout` window until enough
+simultaneous senders exist to fill a batch by size instead of by timer.
+Six courtesy-capped goroutines (the pattern `throughputbench` uses for the
+CPU-bound storefront edge) measured 558/sec; 60 measured 5,547/sec; 256
+measured a reproducible ~25,500/sec (three runs: 25,459 / 25,630 /
+26,542); 500 measured a reproducible ~185,000/sec (three runs: 191,228 /
+182,233 / 189,936), a nonlinear jump consistent with enough concurrent
+senders finally filling each partition's batch by size before its timer
+fires. Because this benchmark is I/O-bound (goroutines spend nearly all
+their time blocked on a channel or the network, not on CPU, confirmed by
+the Kafka broker's own measured 2.9% CPU during the 500-sender run), more
+goroutines than logical cores is the honest way to find this edge's real
+ceiling, unlike a CPU-bound benchmark where the courtesy cap genuinely
+matters; the reported number below uses 500 senders for exactly this
+reason.
 
 ## Measured results
 
@@ -683,6 +832,70 @@ this dashboard meaningfully faster).**
 | **Backlog drained (lag=0)** | **10.4 ms** (cap 4m0s) |
 | **Met** | **yes** |
 
+### Location-ping ingest edge and per-cell supply rollup
+
+Machine: WSL2 Ubuntu 22.04 on Windows 11, **12 logical cores** (WSL capped
+by `~/.wslconfig`, `nproc` reflects this and every benchmark below ran
+under it), Go 1.23.4, Apache Kafka 4.3.1 (KRaft, single broker, 6
+partitions), Redis 7.x (single instance, native WSL2 process, default port
+6379, a dedicated logical DB per run to avoid colliding with the segment
+extension's own Redis use).
+
+**Claim: location pings deduplicated on (device_id, sequence), fanned out
+to Kafka keyed by H3 cell, spilled to a disk-backed spool under
+backpressure with a concurrent drainer.** Exercised directly by all three
+benchmarks below; `locationpingoutagebench`'s own 0-lost result is the
+most direct evidence the spool-and-drain path works under real backpressure.
+
+**Claim: 35,000+ pings/sec sustained on 12 cores.**
+`docs/locationping_throughput_output.txt`, 500 concurrent sender
+goroutines (I/O-bound, see Findings for why this exceeds the
+courtesy-capped worker count other benchmarks in this repo use), 20s
+offered duration:
+
+| | |
+|---|---|
+| Sent (accepted) | 3,800,759 |
+| Actually produced to Kafka | 3,800,759 (0 fell back to the disk spool) |
+| Errors | 0 |
+| Elapsed | 20.01s |
+| **Sustained throughput** | **189,936 pings/sec** |
+| Claim | 35,000+ pings/sec |
+| **Met** | **yes (5.4x the claim)** |
+
+**Claim: 0 of 4,250 pings lost across a simulated 60-second broker
+outage.** `docs/locationping_outage_output.txt`, same design as
+`outagebench`: 50 devices sending continuously at 1 ping/sec, a 10s /
+60s / 15s pre-outage / outage / post-outage window:
+
+| | |
+|---|---|
+| Sent | 4,250 |
+| Landed in Kafka after drain | 4,250 |
+| **Pings lost** | **0** |
+
+**Claim: per-cell supply counts bit-identical (SHA-256 digest match)
+after a fully reordered replay.** `docs/supplyrollup_output.txt`:
+
+| | |
+|---|---|
+| Devices | 2,000 |
+| True pings per device (stepping through a 4-cell ring) | 20 |
+| Unique pings | 40,000 |
+| Delivered (post-duplication) messages | 42,000 (measured 4.76% duplicates, targeting 5%) |
+| Reordering | every device's own delivery order fully shuffled, plus Kafka's own per-cell-key partitioning and partition-by-partition read-back, neither of which preserves original send order |
+| Cells occupied | 400 (reference oracle and incremental rollup agree) |
+| Reference-oracle digest | `229bba6adf589330fd0af97ffcdd52bc54fc00058af5e62c320c0e1edaef758a` |
+| Incremental-rollup digest | `229bba6adf589330fd0af97ffcdd52bc54fc00058af5e62c320c0e1edaef758a` |
+| **Result** | **bit-identical** |
+
+| Claim | Measured | Met |
+|---|---|---|
+| Dedup on (device_id, sequence); Kafka fanout keyed by H3 cell; spool + concurrent drainer under backpressure | all three present and exercised | yes |
+| 35,000+ pings/sec sustained on 12 cores | 189,936 pings/sec | yes |
+| 0 of 4,250 pings lost across a 60s simulated broker outage | 0 of 4,250 | yes |
+| Per-cell supply counts bit-identical after a fully reordered replay | bit-identical | yes |
+
 ## Building and running
 
 Requires Go 1.21+, and a running Kafka broker (see below for the exact local
@@ -805,6 +1018,23 @@ npm install
 npm run dev   # proxies /api to http://127.0.0.1:8090
 ```
 
+Running the location-ping benchmarks (Kafka and Redis must both be
+reachable; see the Kafka commands above and `docs/_start_redis.sh` for the
+exact local setup used):
+
+```
+go run ./cmd/locationpingthroughputbench -workers 500 -duration 20s -topic location-pings-throughput-bench -out docs/locationping_throughput_output.txt
+go run ./cmd/locationpingoutagebench -devices 50 -interval 1s -pre-outage 10s -outage 60s -post-outage 15s -topic location-pings-outage-bench
+go run ./cmd/supplyrollupbench -devices 2000 -pings 20 -dup-fraction 0.05 -redis 127.0.0.1:6379 -redis-db 3 -topic location-pings-rollup-bench
+```
+
+Regenerating the location-ping protobuf code (only needed after editing
+`proto/locationping.proto`):
+
+```
+protoc --go_out=./proto --go_opt=paths=source_relative -I proto proto/locationping.proto
+```
+
 ## Limitations
 
 - MQTT ingest and a TimescaleDB sink were part of this extension's design
@@ -892,3 +1122,27 @@ npm run dev   # proxies /api to http://127.0.0.1:8090
   docker-compose.yml for the delivery-stats extension are included in
   `deploy/`, authored to describe the intended containerized shape, never
   built or run this session.
+- **`internal/h3cell` is not Uber's H3 library.** It is a from-scratch
+  axial hex grid chosen because this build machine has no CGO path to
+  libh3 (no apt package, and building it from source was judged out of
+  scope for what this claim actually needs); cell ids from this package
+  are not real H3 indexes and are not meant to be compared against, or
+  interchanged with, output from `h3-go` or any other real H3 binding.
+- **The per-cell rollup's "latest sequence wins" bookkeeping lives in one
+  consumer process's memory, not in Redis.** This is correct for the
+  single-consumer design this extension actually has (see Architecture);
+  a deployment running multiple concurrent rollup consumers against the
+  same cells would need to move that bookkeeping into Redis itself (a Lua
+  script or a per-device `WATCH`/`MULTI`), which this session did not
+  build because nothing in `meta.json`'s claims calls for concurrent
+  consumers.
+- **The sustained-throughput benchmark's reported number (189,936
+  pings/sec) uses 500 concurrent sender goroutines**, well above the
+  courtesy-capped half-of-GOMAXPROCS pattern other benchmarks in this repo
+  use; see Findings for why that is the honest way to measure an I/O-bound
+  producer's ceiling rather than a tuning choice, and for the lower,
+  still-honest numbers measured at smaller worker counts (558/sec at 6,
+  5,547/sec at 60, ~25,500/sec at 256).
+- The 60-second location-ping outage is simulated at the producer, the
+  same disclosed convention the original telemetry gateway's own outage
+  benchmark uses, not a real broker process being stopped.

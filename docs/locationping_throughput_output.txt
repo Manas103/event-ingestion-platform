@@ -1,0 +1,5 @@
+=== device-telemetry-gateway location-ping edge sustained throughput benchmark ===
+workers: 500 (logical cores available: 12), offered duration: 20s
+sent (accepted): 3800759, errors: 0, elapsed: 20.010696174s
+of accepted: 3800759 actually produced to kafka, 0 fell back to the disk spool (0 bytes left unsent at cutoff)
+RESULT: sustained throughput actually landed in kafka: 189936 pings/sec

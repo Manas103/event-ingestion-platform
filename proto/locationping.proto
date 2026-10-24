@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package locationping;
+
+option go_package = "device-telemetry-gateway/proto";
+
+// LocationPing is one driver-side GPS sample from a simulated device, sent
+// as a single binary protobuf frame over the device's WebSocket connection.
+// sequence plays the same role it plays for Reading: dedup keys on
+// (device_id, sequence), and replay correctness is checked against it.
+message LocationPing {
+  string device_id = 1;
+  uint64 sequence = 2;
+  int64 timestamp_ms = 3;
+  double lat = 4;
+  double lon = 5;
+}
