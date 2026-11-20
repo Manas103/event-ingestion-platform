@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 // cmd/deliverygateway's /api/summary endpoint serves off the live
 // ClickHouse rollup table. Nothing here is hardcoded or mocked: every
 // number rendered is whatever the gateway's own query returns at fetch
-// time, which is the "live" half of the resume claim this dashboard is
-// built to demonstrate.
+// time, which is what makes the dashboard live rather than a static
+// report.
 type SummaryRow = { channel: string; status: string; count: number };
 type SummaryResponse = { generated_at: string; rows: SummaryRow[] };
 

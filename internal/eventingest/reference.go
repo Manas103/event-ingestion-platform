@@ -1,6 +1,6 @@
 package eventingest
 
-import pb "device-telemetry-gateway/proto"
+import pb "github.com/Manas103/event-ingestion-platform/proto"
 
 // ReferenceDedup is a deliberately naive, independently written
 // deduplication used only to build ground truth in tests and the benchmark:

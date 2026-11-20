@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 
-	"device-telemetry-gateway/internal/locationping"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/locationping"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 var upgrader = websocket.Upgrader{

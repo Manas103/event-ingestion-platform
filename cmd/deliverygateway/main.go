@@ -20,10 +20,10 @@ import (
 	"sync"
 	"time"
 
-	"device-telemetry-gateway/internal/deliverystats"
-	"device-telemetry-gateway/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/deliverystats"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // webhookPayload is the simulated provider's JSON POST body. A real

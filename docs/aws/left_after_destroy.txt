@@ -1,0 +1,4 @@
+instances not terminated: 0
+volumes: 0
+ECR repositories: 0
+S3 result buckets: 0

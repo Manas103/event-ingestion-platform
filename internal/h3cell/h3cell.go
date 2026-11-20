@@ -1,4 +1,4 @@
-// Package h3cell is an H3-inspired hex grid, not Uber's own H3 library: no
+// Package h3cell is an H3-inspired hex grid, not the real H3 library: no
 // CGO dependency on libh3 exists on this build machine, so this package
 // reimplements the one property this project's claims actually need (every
 // lat/lon maps deterministically to one cell id, and nearby points map to

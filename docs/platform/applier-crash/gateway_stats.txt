@@ -1,0 +1,4 @@
+    replica  received  duplicates  produced  spooled  drained    acks  spool_bytes  dedup_entries  conns  cordoned
+  gateway-0    204136       10336    193800        0        0  204136            0         193800      0     false
+  gateway-1    210456       10656    199800        0        0  210456            0         199800      0     false
+  gateway-2    217408       11008    206400        0        0  217408            0         206400      0     false

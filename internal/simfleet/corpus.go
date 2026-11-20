@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // DeviceStream is one simulated device's delivery order: what it will

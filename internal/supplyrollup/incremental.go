@@ -14,8 +14,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"device-telemetry-gateway/internal/h3cell"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/h3cell"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func cellKey(cellID string) string { return "supplycell:" + cellID }

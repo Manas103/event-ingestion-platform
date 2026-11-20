@@ -9,8 +9,8 @@ import (
 	"math/rand"
 	"time"
 
-	pb "device-telemetry-gateway/proto"
-	"device-telemetry-gateway/internal/segment"
+	"github.com/Manas103/event-ingestion-platform/internal/segment"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // ProfileEvents is one profile's own event history, in chronological order

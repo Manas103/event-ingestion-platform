@@ -5,7 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // TestRecomputeIgnoresStaleSequence pins the "latest sequence wins" rule: a
@@ -28,7 +28,7 @@ func TestRecomputeIgnoresStaleSequence(t *testing.T) {
 
 // TestDigestStableUnderReorderAndDuplication proves Digest depends only on
 // the final per-cell membership, not on how many times or in what order
-// the pings that produced it arrived, the exact property the resume claim
+// the pings that produced it arrived, the exact property the replay check
 // ("bit-identical after a fully reordered replay") rests on.
 func TestDigestStableUnderReorderAndDuplication(t *testing.T) {
 	var canonical []*pb.LocationPing

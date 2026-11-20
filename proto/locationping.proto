@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package locationping;
 
-option go_package = "device-telemetry-gateway/proto";
+option go_package = "github.com/Manas103/event-ingestion-platform/proto";
 
 // LocationPing is one driver-side GPS sample from a simulated device, sent
 // as a single binary protobuf frame over the device's WebSocket connection.

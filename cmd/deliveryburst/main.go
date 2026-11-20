@@ -19,12 +19,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"device-telemetry-gateway/internal/deliverystats"
-	"device-telemetry-gateway/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/deliverystats"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
 
 	"github.com/segmentio/kafka-go"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func ensureTopic(broker, topic string, partitions int) error {

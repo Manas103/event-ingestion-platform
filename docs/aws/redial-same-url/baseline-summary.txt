@@ -1,0 +1,23 @@
+scenario: baseline
+fault: no fault
+fault at t+19.7 s of a 63.4 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 0, acked 632000; disconnects 0, failed redials 0
+ack rate: 10013/s before the fault, lowest 1 s window after it 8575/s
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 0 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 0 applied again (redelivered or duplicated in the log)
+kafka log: 600000 messages, 600000 distinct readings, 0 duplicate messages (0.000%)
+end-to-end latency, first send to applied, every sampled message (60000 samples): p50=28 ms p99=845 ms p99.9=1148 ms max=1391 ms
+  of which first application of a reading (60000 samples): p50=28 ms p99=845 ms p99.9=1148 ms max=1391 ms
+  of which re-application (duplicate in the log or redelivery) (0 samples): p50=0 ms p99=0 ms p99.9=0 ms max=0 ms
+  Kafka timestamp to applied (consumer side only) (60000 samples): p50=21 ms p99=88 ms p99.9=228 ms max=375 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+sim Exited (0) 3 seconds ago
+ap-1 Up About a minute
+ap-0 Up About a minute
+gw-1 Up About a minute
+gw-0 Up About a minute
+redis Up About a minute
+kafka Up About a minute

@@ -1,0 +1,2 @@
+SIGKILL pid 963 (kafka-1 on eip-worker2)
+FAULT_MS=1795209878848

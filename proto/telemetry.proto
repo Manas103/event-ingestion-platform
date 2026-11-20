@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package telemetry;
 
-option go_package = "device-telemetry-gateway/proto";
+option go_package = "github.com/Manas103/event-ingestion-platform/proto";
 
 // Reading is one telemetry sample from a simulated device, sent as a single
 // binary protobuf frame over the device's WebSocket connection. sequence is
@@ -14,4 +14,15 @@ message Reading {
   uint64 sequence = 2;
   int64 timestamp_ms = 3;
   double value = 4;
+}
+
+// Ack is what the edge writes back on a connection opened with ?ack=1, once a
+// Reading is durable: produced to Kafka with the configured acks, spooled to
+// disk, or recognized as a duplicate of one that already was. A client keeps
+// every Reading it has sent but not seen acked, and resends those after a
+// reconnect, so a gateway crash loses nothing that was not acked (delivery is
+// at least once; duplicates are removed by the edge dedup and, end to end, by
+// the idempotent consumer).
+message Ack {
+  uint64 sequence = 1;
 }

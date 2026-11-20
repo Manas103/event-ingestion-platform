@@ -1,0 +1,2 @@
+SIGKILL gw-1 (Docker restarts it with the same spool volume)
+FAULT_MS=1795210828892

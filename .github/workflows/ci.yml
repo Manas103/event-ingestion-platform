@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.4"
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - name: vet
+        run: go vet ./...
+      - name: unit tests (race detector)
+        run: go test -race -count=1 ./...
+
+  terraform:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - working-directory: deploy/aws
+        run: |
+          terraform fmt -check
+          terraform init -backend=false -input=false
+          terraform validate
+
+  kind-failover:
+    # A small version of the gateway-crash experiment on a real 4-node kind
+    # cluster: 3 Kafka brokers (RF 3, min.insync 2, acks=all), 3 gateways,
+    # 3 appliers. One gateway is SIGKILLed mid-run; the job fails unless the
+    # verifier finds zero lost readings and a digest identical to the reference.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: install kind
+        run: |
+          curl -sLo kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+          chmod +x kind && sudo mv kind /usr/local/bin/kind
+      - name: cluster, image, Kafka, Redis
+        run: scripts/kind_up.sh
+      - name: gateway crash
+        env:
+          DEVICES: "200"
+          READINGS: "300"
+          RATE: "10"
+          FAULT_AT: "10"
+        run: scripts/kind_failover.sh gateway-crash
+      - name: check result
+        run: grep -q "RESULT: zero lost, zero extra, final state digest identical to the reference: true" results/gateway-crash/verify.log
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kind-failover
+          path: results/

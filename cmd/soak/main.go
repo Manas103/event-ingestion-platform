@@ -23,9 +23,9 @@ import (
 	"log"
 	"os"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 
-	"device-telemetry-gateway/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
 )
 
 type alwaysSucceedsProducer struct{}

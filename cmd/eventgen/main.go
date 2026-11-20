@@ -16,11 +16,11 @@ import (
 	"sort"
 	"time"
 
-	"device-telemetry-gateway/internal/eventingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/simstorefront"
+	"github.com/Manas103/event-ingestion-platform/internal/eventingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/simstorefront"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func main() {

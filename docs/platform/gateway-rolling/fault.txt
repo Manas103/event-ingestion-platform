@@ -1,0 +1,2 @@
+statefulset.apps/gateway restarted
+FAULT_MS=1795209773674

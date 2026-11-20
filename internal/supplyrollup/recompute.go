@@ -3,8 +3,8 @@ package supplyrollup
 import (
 	"sort"
 
-	"device-telemetry-gateway/internal/h3cell"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/h3cell"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // Recompute answers "which devices are in which cell" from zero: given the

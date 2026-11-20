@@ -1,0 +1,6 @@
+m7i-flex.large
+6.18.62-127.179.amzn2023.x86_64
+2
+               total        used        free      shared  buff/cache   available
+Mem:            7779         332        6682           0         765        7195
+Swap:              0           0           0

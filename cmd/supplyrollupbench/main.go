@@ -23,12 +23,12 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"device-telemetry-gateway/internal/ingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/locationping"
-	"device-telemetry-gateway/internal/locationwsserver"
-	"device-telemetry-gateway/internal/simfleet"
-	"device-telemetry-gateway/internal/supplyrollup"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/locationping"
+	"github.com/Manas103/event-ingestion-platform/internal/locationwsserver"
+	"github.com/Manas103/event-ingestion-platform/internal/simfleet"
+	"github.com/Manas103/event-ingestion-platform/internal/supplyrollup"
 )
 
 func main() {

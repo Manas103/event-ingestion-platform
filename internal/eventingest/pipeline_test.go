@@ -8,7 +8,7 @@ import (
 	"sync"
 	"testing"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 type fakeProducer struct {

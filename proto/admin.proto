@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package admin;
+
+option go_package = "github.com/Manas103/event-ingestion-platform/proto/adminpb";
+
+// IngestAdmin is the operator API every gateway replica serves on its admin
+// port (gRPC, next to the standard grpc.health.v1 service the Kubernetes
+// probes use).
+service IngestAdmin {
+  // Stats returns this replica's counters since start.
+  rpc Stats(StatsRequest) returns (StatsReply);
+  // DrainSpool retries every spooled reading against Kafka now, instead of
+  // waiting for the next drain tick.
+  rpc DrainSpool(DrainSpoolRequest) returns (DrainSpoolReply);
+  // Cordon stops this replica accepting new device connections and closes
+  // the open ones, so devices reconnect to another replica before this one
+  // is stopped (graceful rollout). Readiness turns NOT_SERVING.
+  rpc Cordon(CordonRequest) returns (CordonReply);
+}
+
+message StatsRequest {}
+
+message StatsReply {
+  string replica = 1;
+  uint64 received = 2;        // frames parsed
+  uint64 duplicates = 3;      // dropped by the edge dedup
+  uint64 produced = 4;        // written to Kafka on the first attempt
+  uint64 spooled = 5;         // written to the disk spool instead
+  uint64 drained = 6;         // spooled readings later produced by the drainer
+  uint64 acks_sent = 7;
+  int64 spool_bytes = 8;
+  uint64 dedup_entries = 9;
+  uint64 dedup_devices = 10;
+  int64 open_connections = 11;
+  bool cordoned = 12;
+}
+
+message DrainSpoolRequest {}
+
+message DrainSpoolReply {
+  uint64 drained = 1;
+  uint64 respooled = 2;
+}
+
+message CordonRequest {}
+
+message CordonReply {
+  int64 closed_connections = 1;
+}

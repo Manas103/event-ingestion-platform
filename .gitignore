@@ -11,3 +11,12 @@
 # Editors / OS
 .DS_Store
 *.swp
+
+# Experiment outputs (the kept copies live in docs/)
+/results/
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*

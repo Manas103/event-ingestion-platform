@@ -7,7 +7,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // StorefrontProducer publishes each StorefrontEvent as one Kafka message,

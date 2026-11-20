@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package deliverystats;
 
-option go_package = "device-telemetry-gateway/proto";
+option go_package = "github.com/Manas103/event-ingestion-platform/proto";
 
 // DeliveryWebhook is one simulated provider delivery-status callback for a
 // single outbound message, across three channels (email, sms, whatsapp).

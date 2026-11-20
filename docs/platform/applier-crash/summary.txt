@@ -1,0 +1,31 @@
+scenario: applier-crash
+fault: SIGKILL pid 9603 (applier-696495b748-9fnsp on eip-worker)
+fault at t+20.8 s of a 63.3 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 0, acked 632000; disconnects 0, failed redials 0
+ack rate: 10000/s before the fault, lowest 1 s window after it 10000/s
+recovered to 90% of the pre-fault ack rate (held 3 s): 0.0 s after the fault
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 4900 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 70 applied again (redelivered or duplicated in the log)
+kafka log: 600000 messages, 600000 distinct readings, 0 duplicate messages (0.000%)
+end-to-end latency, first send to applied, every sampled message (60005 samples): p50=17 ms p99=4767 ms p99.9=5836 ms max=5974 ms
+  of which first application of a reading (59996 samples): p50=17 ms p99=4765 ms p99.9=5838 ms max=5974 ms
+  of which re-application (duplicate in the log or redelivery) (9 samples): p50=5050 ms p99=5052 ms p99.9=5052 ms max=5052 ms
+  Kafka timestamp to applied (consumer side only) (60005 samples): p50=13 ms p99=4763 ms p99.9=5829 ms max=5968 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+replica  received  duplicates  produced  spooled  drained    acks  spool_bytes  dedup_entries  conns  cordoned
+  gateway-0    204136       10336    193800        0        0  204136            0         193800      0     false
+  gateway-1    210456       10656    199800        0        0  210456            0         199800      0     false
+  gateway-2    217408       11008    206400        0        0  217408            0         206400      0     false
+after the run:
+pod/gateway-0 restarts=0
+pod/gateway-1 restarts=0
+pod/gateway-2 restarts=0
+applier-696495b748-9fnsp   1     eip-worker
+applier-696495b748-pr5mw   0     eip-worker3
+applier-696495b748-qf2z6   0     eip-worker2
+kafka-0                    4     eip-worker
+kafka-1                    6     eip-worker2
+kafka-2                    4     eip-worker3

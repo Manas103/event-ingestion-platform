@@ -94,6 +94,57 @@ func (x *Reading) GetValue() float64 {
 	return 0
 }
 
+// Ack is what the edge writes back on a connection opened with ?ack=1, once a
+// Reading is durable: produced to Kafka with the configured acks, spooled to
+// disk, or recognized as a duplicate of one that already was. A client keeps
+// every Reading it has sent but not seen acked, and resends those after a
+// reconnect, so a gateway crash loses nothing that was not acked (delivery is
+// at least once; duplicates are removed by the edge dedup and, end to end, by
+// the idempotent consumer).
+type Ack struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sequence      uint64                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Ack) Reset() {
+	*x = Ack{}
+	mi := &file_telemetry_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Ack) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ack) ProtoMessage() {}
+
+func (x *Ack) ProtoReflect() protoreflect.Message {
+	mi := &file_telemetry_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ack.ProtoReflect.Descriptor instead.
+func (*Ack) Descriptor() ([]byte, []int) {
+	return file_telemetry_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Ack) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
 var File_telemetry_proto protoreflect.FileDescriptor
 
 const file_telemetry_proto_rawDesc = "" +
@@ -103,7 +154,9 @@ const file_telemetry_proto_rawDesc = "" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x1a\n" +
 	"\bsequence\x18\x02 \x01(\x04R\bsequence\x12!\n" +
 	"\ftimestamp_ms\x18\x03 \x01(\x03R\vtimestampMs\x12\x14\n" +
-	"\x05value\x18\x04 \x01(\x01R\x05valueB Z\x1edevice-telemetry-gateway/protob\x06proto3"
+	"\x05value\x18\x04 \x01(\x01R\x05value\"!\n" +
+	"\x03Ack\x12\x1a\n" +
+	"\bsequence\x18\x01 \x01(\x04R\bsequenceB4Z2github.com/Manas103/event-ingestion-platform/protob\x06proto3"
 
 var (
 	file_telemetry_proto_rawDescOnce sync.Once
@@ -117,9 +170,10 @@ func file_telemetry_proto_rawDescGZIP() []byte {
 	return file_telemetry_proto_rawDescData
 }
 
-var file_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_telemetry_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_telemetry_proto_goTypes = []any{
 	(*Reading)(nil), // 0: telemetry.Reading
+	(*Ack)(nil),     // 1: telemetry.Ack
 }
 var file_telemetry_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -140,7 +194,7 @@ func file_telemetry_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_telemetry_proto_rawDesc), len(file_telemetry_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

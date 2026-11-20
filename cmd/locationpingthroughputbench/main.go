@@ -19,11 +19,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"device-telemetry-gateway/internal/ingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/locationping"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/locationping"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func main() {

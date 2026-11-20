@@ -8,8 +8,8 @@ import (
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 
-	"device-telemetry-gateway/internal/h3cell"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/h3cell"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // LocationPingProducer publishes each LocationPing keyed by its H3-inspired

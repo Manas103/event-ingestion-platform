@@ -1,0 +1,31 @@
+scenario: broker-crash
+fault: SIGKILL pid 9278 (kafka-1 on eip-worker2)
+fault at t+20.1 s of a 63.3 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 0, acked 632000; disconnects 0, failed redials 0
+ack rate: 10000/s before the fault, lowest 1 s window after it 3449/s
+recovered to 90% of the pre-fault ack rate (held 3 s): 7.1 s after the fault
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 12900 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 4791 applied again (redelivered or duplicated in the log)
+kafka log: 604690 messages, 600000 distinct readings, 4690 duplicate messages (0.776%)
+end-to-end latency, first send to applied, every sampled message (60477 samples): p50=24 ms p99=12949 ms p99.9=13571 ms max=13737 ms
+  of which first application of a reading (60032 samples): p50=24 ms p99=12532 ms p99.9=13070 ms max=13632 ms
+  of which re-application (duplicate in the log or redelivery) (445 samples): p50=13359 ms p99=13720 ms p99.9=13735 ms max=13737 ms
+  Kafka timestamp to applied (consumer side only) (60477 samples): p50=20 ms p99=6496 ms p99.9=8033 ms max=13039 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+replica  received  duplicates  produced  spooled  drained    acks  spool_bytes  dedup_entries  conns  cordoned
+  gateway-0    198448       10048    180037     8363     8363  198448            0         188400      0     false
+  gateway-1    226888       11488    205812     9588     9588  226888            0         215400      0     false
+  gateway-2    206664       10464    187146     9054     9054  206664            0         196200      0     false
+after the run:
+pod/gateway-0 restarts=0
+pod/gateway-1 restarts=0
+pod/gateway-2 restarts=0
+applier-7b4db55d64-44hbn   0     eip-worker3
+applier-7b4db55d64-fzm2j   0     eip-worker
+applier-7b4db55d64-nppqs   0     eip-worker2
+kafka-0                    0     eip-worker
+kafka-1                    1     eip-worker2
+kafka-2                    0     eip-worker3

@@ -1,0 +1,367 @@
++ OUT=/root/eip-results
++ mkdir -p /root/eip-results
++ trap upload_log EXIT
++ dnf install -y docker
+Amazon Linux 2023 repository                     82 MB/s |  91 MB     00:01    
+Amazon Linux 2023 Kernel Livepatch repository   1.1 MB/s | 122 kB     00:00    
+Dependencies resolved.
+================================================================================
+ Package                  Arch     Version                  Repository     Size
+================================================================================
+Installing:
+ docker                   x86_64   25.0.18-1.amzn2023.0.4   amazonlinux    49 M
+Installing dependencies:
+ container-selinux        noarch   4:2.245.0-1.amzn2023     amazonlinux    58 k
+ containerd               x86_64   2.3.7-1.amzn2023.0.4     amazonlinux    24 M
+ iptables-libs            x86_64   1.8.8-3.amzn2023.0.2     amazonlinux   401 k
+ iptables-nft             x86_64   1.8.8-3.amzn2023.0.2     amazonlinux   183 k
+ libcgroup                x86_64   3.0-1.amzn2023.0.1       amazonlinux    75 k
+ libnetfilter_conntrack   x86_64   1.0.8-2.amzn2023.0.2     amazonlinux    58 k
+ libnfnetlink             x86_64   1.0.1-19.amzn2023.0.2    amazonlinux    30 k
+ libnftnl                 x86_64   1.2.2-2.amzn2023.0.2     amazonlinux    84 k
+ pigz                     x86_64   2.5-1.amzn2023.0.4       amazonlinux    83 k
+ runc                     x86_64   1.4.3-1.amzn2023.0.3     amazonlinux   3.7 M
+
+Transaction Summary
+================================================================================
+Install  11 Packages
+
+Total download size: 77 M
+Installed size: 290 M
+Downloading Packages:
+(1/11): container-selinux-2.245.0-1.amzn2023.no 1.8 MB/s |  58 kB     00:00    
+(2/11): iptables-libs-1.8.8-3.amzn2023.0.2.x86_  11 MB/s | 401 kB     00:00    
+(3/11): iptables-nft-1.8.8-3.amzn2023.0.2.x86_6 6.0 MB/s | 183 kB     00:00    
+(4/11): libcgroup-3.0-1.amzn2023.0.1.x86_64.rpm 2.5 MB/s |  75 kB     00:00    
+(5/11): libnetfilter_conntrack-1.0.8-2.amzn2023 2.2 MB/s |  58 kB     00:00    
+(6/11): libnfnetlink-1.0.1-19.amzn2023.0.2.x86_ 1.2 MB/s |  30 kB     00:00    
+(7/11): libnftnl-1.2.2-2.amzn2023.0.2.x86_64.rp 2.9 MB/s |  84 kB     00:00    
+(8/11): pigz-2.5-1.amzn2023.0.4.x86_64.rpm      2.5 MB/s |  83 kB     00:00    
+(9/11): containerd-2.3.7-1.amzn2023.0.4.x86_64.  65 MB/s |  24 MB     00:00    
+(10/11): runc-1.4.3-1.amzn2023.0.3.x86_64.rpm    24 MB/s | 3.7 MB     00:00    
+(11/11): docker-25.0.18-1.amzn2023.0.4.x86_64.r  57 MB/s |  49 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                            85 MB/s |  77 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Installing       : runc-1.4.3-1.amzn2023.0.3.x86_64                      1/11 
+  Installing       : containerd-2.3.7-1.amzn2023.0.4.x86_64                2/11 
+  Running scriptlet: containerd-2.3.7-1.amzn2023.0.4.x86_64                2/11 
+  Installing       : pigz-2.5-1.amzn2023.0.4.x86_64                        3/11 
+  Installing       : libnftnl-1.2.2-2.amzn2023.0.2.x86_64                  4/11 
+  Installing       : libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64             5/11 
+  Installing       : libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64    6/11 
+  Installing       : iptables-libs-1.8.8-3.amzn2023.0.2.x86_64             7/11 
+  Installing       : iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              8/11 
+  Running scriptlet: iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              8/11 
+  Installing       : libcgroup-3.0-1.amzn2023.0.1.x86_64                   9/11 
+  Running scriptlet: container-selinux-4:2.245.0-1.amzn2023.noarch        10/11 
+  Installing       : container-selinux-4:2.245.0-1.amzn2023.noarch        10/11 
+  Running scriptlet: container-selinux-4:2.245.0-1.amzn2023.noarch        10/11 
+  Running scriptlet: docker-25.0.18-1.amzn2023.0.4.x86_64                 11/11 
+  Installing       : docker-25.0.18-1.amzn2023.0.4.x86_64                 11/11 
+  Running scriptlet: docker-25.0.18-1.amzn2023.0.4.x86_64                 11/11 
+Created symlink /etc/systemd/system/sockets.target.wants/docker.socket → /usr/lib/systemd/system/docker.socket.
+
+  Running scriptlet: container-selinux-4:2.245.0-1.amzn2023.noarch        11/11 
+  Running scriptlet: docker-25.0.18-1.amzn2023.0.4.x86_64                 11/11 
+  Verifying        : container-selinux-4:2.245.0-1.amzn2023.noarch         1/11 
+  Verifying        : containerd-2.3.7-1.amzn2023.0.4.x86_64                2/11 
+  Verifying        : docker-25.0.18-1.amzn2023.0.4.x86_64                  3/11 
+  Verifying        : iptables-libs-1.8.8-3.amzn2023.0.2.x86_64             4/11 
+  Verifying        : iptables-nft-1.8.8-3.amzn2023.0.2.x86_64              5/11 
+  Verifying        : libcgroup-3.0-1.amzn2023.0.1.x86_64                   6/11 
+  Verifying        : libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64    7/11 
+  Verifying        : libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64             8/11 
+  Verifying        : libnftnl-1.2.2-2.amzn2023.0.2.x86_64                  9/11 
+  Verifying        : pigz-2.5-1.amzn2023.0.4.x86_64                       10/11 
+  Verifying        : runc-1.4.3-1.amzn2023.0.3.x86_64                     11/11 
+
+Installed:
+  container-selinux-4:2.245.0-1.amzn2023.noarch                                 
+  containerd-2.3.7-1.amzn2023.0.4.x86_64                                        
+  docker-25.0.18-1.amzn2023.0.4.x86_64                                          
+  iptables-libs-1.8.8-3.amzn2023.0.2.x86_64                                     
+  iptables-nft-1.8.8-3.amzn2023.0.2.x86_64                                      
+  libcgroup-3.0-1.amzn2023.0.1.x86_64                                           
+  libnetfilter_conntrack-1.0.8-2.amzn2023.0.2.x86_64                            
+  libnfnetlink-1.0.1-19.amzn2023.0.2.x86_64                                     
+  libnftnl-1.2.2-2.amzn2023.0.2.x86_64                                          
+  pigz-2.5-1.amzn2023.0.4.x86_64                                                
+  runc-1.4.3-1.amzn2023.0.3.x86_64                                              
+
+Complete!
++ systemctl enable --now docker
+Created symlink /etc/systemd/system/multi-user.target.wants/docker.service → /usr/lib/systemd/system/docker.service.
+++ curl -sX PUT http://169.254.169.254/latest/api/token -H 'X-aws-ec2-metadata-token-ttl-seconds: 300'
++ TOKEN=AQAEANGeNJ-HfYa1SvEo4PQp3UYKA2YmNKUBnpMDkpOfqlut6RjcTw==
++ curl -s -H 'X-aws-ec2-metadata-token: AQAEANGeNJ-HfYa1SvEo4PQp3UYKA2YmNKUBnpMDkpOfqlut6RjcTw==' http://169.254.169.254/latest/meta-data/instance-type
++ echo
++ uname -r
++ nproc
++ free -m
+++ seq 1 120
++ for i in $(seq 1 120)
++ aws ecr describe-images --repository-name event-ingestion-platform --image-ids imageTag=latest --region us-east-1
++ sleep 10
++ for i in $(seq 1 120)
++ aws ecr describe-images --repository-name event-ingestion-platform --image-ids imageTag=latest --region us-east-1
++ sleep 10
++ for i in $(seq 1 120)
++ aws ecr describe-images --repository-name event-ingestion-platform --image-ids imageTag=latest --region us-east-1
++ break
++ aws ecr get-login-password --region us-east-1
++ docker login --username AWS --password-stdin <account>.dkr.ecr.us-east-1.amazonaws.com
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
++ docker pull <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest
+latest: Pulling from event-ingestion-platform
+a5789fc40e82: Pulling fs layer
+990a9c434e5e: Pulling fs layer
+39dc083afc39: Pulling fs layer
+bf7a4185f015: Pulling fs layer
+2780920e5dbf: Pulling fs layer
+7c12895b777b: Pulling fs layer
+3214acf345c0: Pulling fs layer
+52630fc75a18: Pulling fs layer
+dd64bf2dd177: Pulling fs layer
+b839dfae01f6: Pulling fs layer
+dcaa5a89b0cc: Pulling fs layer
+96ed2737ae31: Pulling fs layer
+0468b650c6eb: Pulling fs layer
+52630fc75a18: Waiting
+dd64bf2dd177: Waiting
+b839dfae01f6: Waiting
+dcaa5a89b0cc: Waiting
+96ed2737ae31: Waiting
+0468b650c6eb: Waiting
+bf7a4185f015: Waiting
+2780920e5dbf: Waiting
+7c12895b777b: Waiting
+3214acf345c0: Waiting
+a5789fc40e82: Download complete
+990a9c434e5e: Verifying Checksum
+990a9c434e5e: Download complete
+39dc083afc39: Verifying Checksum
+39dc083afc39: Download complete
+a5789fc40e82: Pull complete
+990a9c434e5e: Pull complete
+bf7a4185f015: Verifying Checksum
+bf7a4185f015: Download complete
+2780920e5dbf: Verifying Checksum
+2780920e5dbf: Download complete
+7c12895b777b: Verifying Checksum
+7c12895b777b: Download complete
+3214acf345c0: Verifying Checksum
+3214acf345c0: Download complete
+52630fc75a18: Verifying Checksum
+52630fc75a18: Download complete
+b839dfae01f6: Verifying Checksum
+b839dfae01f6: Download complete
+dd64bf2dd177: Verifying Checksum
+dd64bf2dd177: Download complete
+39dc083afc39: Pull complete
+bf7a4185f015: Pull complete
+2780920e5dbf: Pull complete
+dcaa5a89b0cc: Verifying Checksum
+dcaa5a89b0cc: Download complete
+7c12895b777b: Pull complete
+3214acf345c0: Pull complete
+96ed2737ae31: Verifying Checksum
+96ed2737ae31: Download complete
+52630fc75a18: Pull complete
+dd64bf2dd177: Pull complete
+b839dfae01f6: Pull complete
+dcaa5a89b0cc: Pull complete
+96ed2737ae31: Pull complete
+0468b650c6eb: Verifying Checksum
+0468b650c6eb: Download complete
+0468b650c6eb: Pull complete
+Digest: sha256:9a623de1b58b1db0c80c4515151bcefac9a13d873bb1e30926a9c48cdad3e76a
+Status: Downloaded newer image for <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest
+<account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest
++ DRUN='docker run -d --network eip --restart unless-stopped'
++ BROKER=kafka:9092
++ CORPUS='-devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120'
++ run_experiment baseline none
++ local name=baseline fault=none topic=readings-baseline
++ docker rm -f kafka redis gw-0 gw-1 ap-0 ap-1 sim
++ docker network rm eip
++ docker network create eip
+8b1052e8a90344b95767c65fb9269c2450a3bb9ff7b59004e58a07bc8e75bfbc
++ docker run -d --network eip --restart unless-stopped --name kafka -e KAFKA_NODE_ID=1 -e KAFKA_PROCESS_ROLES=broker,controller -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false -e 'KAFKA_HEAP_OPTS=-Xms1g -Xmx1g' apache/kafka:3.9.1
+Unable to find image 'apache/kafka:3.9.1' locally
+3.9.1: Pulling from apache/kafka
+f18232174bc9: Pulling fs layer
+f6cd406c8d97: Pulling fs layer
+74f6a226ed93: Pulling fs layer
+e6744199aa66: Pulling fs layer
+cda86626eeb3: Pulling fs layer
+304e58a73598: Pulling fs layer
+34d370b15c91: Pulling fs layer
+6e6e21ba9841: Pulling fs layer
+a34edb4da622: Pulling fs layer
+f7cdaeb78991: Pulling fs layer
+34d370b15c91: Waiting
+e6744199aa66: Waiting
+6e6e21ba9841: Waiting
+a34edb4da622: Waiting
+cda86626eeb3: Waiting
+f7cdaeb78991: Waiting
+304e58a73598: Waiting
+f18232174bc9: Verifying Checksum
+f18232174bc9: Download complete
+e6744199aa66: Verifying Checksum
+e6744199aa66: Download complete
+cda86626eeb3: Verifying Checksum
+cda86626eeb3: Download complete
+f6cd406c8d97: Verifying Checksum
+f6cd406c8d97: Download complete
+f18232174bc9: Pull complete
+34d370b15c91: Verifying Checksum
+34d370b15c91: Download complete
+6e6e21ba9841: Verifying Checksum
+6e6e21ba9841: Download complete
+a34edb4da622: Download complete
+f7cdaeb78991: Verifying Checksum
+f7cdaeb78991: Download complete
+74f6a226ed93: Verifying Checksum
+74f6a226ed93: Download complete
+f6cd406c8d97: Pull complete
+304e58a73598: Verifying Checksum
+304e58a73598: Download complete
+74f6a226ed93: Pull complete
+e6744199aa66: Pull complete
+cda86626eeb3: Pull complete
+304e58a73598: Pull complete
+34d370b15c91: Pull complete
+6e6e21ba9841: Pull complete
+a34edb4da622: Pull complete
+f7cdaeb78991: Pull complete
+Digest: sha256:4ceccc577f03f51f6af8dbfda55194d0d892f4fa7913ffbded567ce3895622ed
+Status: Downloaded newer image for apache/kafka:3.9.1
+d4044353024bfdfbc063b4f26a09b786cbefe45244108460efb8964c4b3cdf04
++ docker run -d --network eip --restart unless-stopped --name redis redis:7.4-alpine --save '' --appendonly no
+Unable to find image 'redis:7.4-alpine' locally
+7.4-alpine: Pulling from library/redis
+710f3da1112f: Pulling fs layer
+6c0bde7286d0: Pulling fs layer
+ad83137ff0b2: Pulling fs layer
+f55179448640: Pulling fs layer
+0e50696bc150: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+4a603bc2424c: Pulling fs layer
+f55179448640: Waiting
+0e50696bc150: Waiting
+4f4fb700ef54: Waiting
+4a603bc2424c: Waiting
+6c0bde7286d0: Verifying Checksum
+6c0bde7286d0: Download complete
+ad83137ff0b2: Verifying Checksum
+ad83137ff0b2: Download complete
+0e50696bc150: Verifying Checksum
+0e50696bc150: Download complete
+710f3da1112f: Verifying Checksum
+710f3da1112f: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+f55179448640: Verifying Checksum
+f55179448640: Download complete
+4a603bc2424c: Verifying Checksum
+4a603bc2424c: Download complete
+710f3da1112f: Pull complete
+6c0bde7286d0: Pull complete
+ad83137ff0b2: Pull complete
+f55179448640: Pull complete
+0e50696bc150: Pull complete
+4f4fb700ef54: Pull complete
+4a603bc2424c: Pull complete
+Digest: sha256:7f7d30b7fdd09467bac58198a1f166dd69789d348d4fe859cccb20e0cf287fbe
+Status: Downloaded newer image for redis:7.4-alpine
+b72f0c15070d323a7acd8bf2263ddfe82b6ae5698706a5204c9e5a93c728ceb7
++ sleep 15
++ for g in 0 1
++ docker run -d --network eip --restart unless-stopped --name gw-0 -v gw-0-baseline:/var/lib/gateway --user root --entrypoint /usr/local/bin/gateway <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -addr=0.0.0.0:8080 -admin-addr=0.0.0.0:9090 -brokers=kafka:9092 -topic=readings-baseline -create-topic -partitions=12 -replication=1 -min-isr=1 -acks-all -produce-timeout=1s -spool=/var/lib/gateway/spool.dat -replica=gw-0
+dfe2b5b3ce706d749fe282249aa2c69ca462c94f8b5b479dbe2db6b071e161b9
++ for g in 0 1
++ docker run -d --network eip --restart unless-stopped --name gw-1 -v gw-1-baseline:/var/lib/gateway --user root --entrypoint /usr/local/bin/gateway <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -addr=0.0.0.0:8080 -admin-addr=0.0.0.0:9090 -brokers=kafka:9092 -topic=readings-baseline -create-topic -partitions=12 -replication=1 -min-isr=1 -acks-all -produce-timeout=1s -spool=/var/lib/gateway/spool.dat -replica=gw-1
+52a5e424adb39d7f01cb04099d0abf740aa466a21303e677610c7731d54700cf
++ for a in 0 1
++ docker run -d --network eip --restart unless-stopped --name ap-0 --entrypoint /usr/local/bin/applier <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -brokers=kafka:9092 -topic=readings-baseline -group=ap-baseline -redis=redis:6379 -member=ap-0
+e1608fe463abeffef0519841dd755754b216d6e63c3cc4e4c928a6f0b3ac8441
++ for a in 0 1
++ docker run -d --network eip --restart unless-stopped --name ap-1 --entrypoint /usr/local/bin/applier <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -brokers=kafka:9092 -topic=readings-baseline -group=ap-baseline -redis=redis:6379 -member=ap-1
+577dd9cfbe5ec9ef086beee76828607ac609fd0b4a773a5ffd1d628f48afb710
++ sleep 10
++ SIM=30228
++ sleep 20
++ docker run --name sim --network eip --entrypoint /usr/local/bin/devicesim <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest '-url=ws://gw-0:8080/ingest?ack=1,ws://gw-1:8080/ingest?ack=1' -devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120 -rate=10 -out=stdout
+++ date +%s%3N
++ FAULT_MS=1795210733784
++ '[' none = crash ']'
++ echo 'no fault'
++ echo FAULT_MS=1795210733784
++ wait 30228
++ docker run --rm --network eip --entrypoint /usr/local/bin/verify <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120 -redis=redis:6379 -brokers=kafka:9092 -topic=readings-baseline -out=stdout
++ docker ps -a --format '{{.Names}} {{.Status}}'
++ run_experiment gateway-crash crash
++ local name=gateway-crash fault=crash topic=readings-gateway-crash
++ docker rm -f kafka redis gw-0 gw-1 ap-0 ap-1 sim
++ docker network rm eip
++ docker network create eip
+5ca11f6545812584ef5d391e01299de9f6ae30dcbab9d806d57bdf9792057fce
++ docker run -d --network eip --restart unless-stopped --name kafka -e KAFKA_NODE_ID=1 -e KAFKA_PROCESS_ROLES=broker,controller -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false -e 'KAFKA_HEAP_OPTS=-Xms1g -Xmx1g' apache/kafka:3.9.1
+abf7ada3eab38820f02f6e4b59b7f556ae8c6a6f28c975153c5965e93621e36d
++ docker run -d --network eip --restart unless-stopped --name redis redis:7.4-alpine --save '' --appendonly no
+079880ee20d8caeedccee8c4c6e59ea618ad9331859608b1f4ee8c62d1f97de3
++ sleep 15
++ for g in 0 1
++ docker run -d --network eip --restart unless-stopped --name gw-0 -v gw-0-gateway-crash:/var/lib/gateway --user root --entrypoint /usr/local/bin/gateway <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -addr=0.0.0.0:8080 -admin-addr=0.0.0.0:9090 -brokers=kafka:9092 -topic=readings-gateway-crash -create-topic -partitions=12 -replication=1 -min-isr=1 -acks-all -produce-timeout=1s -spool=/var/lib/gateway/spool.dat -replica=gw-0
+6959fb1da4cd5279e6ca071e387c92ed60f4287a0587aa6a1c0451775c6d966e
++ for g in 0 1
++ docker run -d --network eip --restart unless-stopped --name gw-1 -v gw-1-gateway-crash:/var/lib/gateway --user root --entrypoint /usr/local/bin/gateway <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -addr=0.0.0.0:8080 -admin-addr=0.0.0.0:9090 -brokers=kafka:9092 -topic=readings-gateway-crash -create-topic -partitions=12 -replication=1 -min-isr=1 -acks-all -produce-timeout=1s -spool=/var/lib/gateway/spool.dat -replica=gw-1
+406c572670ebb4094c204da5511028349b752d7ed353d1efd14b50fadd31d690
++ for a in 0 1
++ docker run -d --network eip --restart unless-stopped --name ap-0 --entrypoint /usr/local/bin/applier <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -brokers=kafka:9092 -topic=readings-gateway-crash -group=ap-gateway-crash -redis=redis:6379 -member=ap-0
+3c9db9e242e454db488c42a728affc9bafbedc300cd567c916cbc173b827fd0f
++ for a in 0 1
++ docker run -d --network eip --restart unless-stopped --name ap-1 --entrypoint /usr/local/bin/applier <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -brokers=kafka:9092 -topic=readings-gateway-crash -group=ap-gateway-crash -redis=redis:6379 -member=ap-1
+02b316c341eeac9d2dec5bd630613bb87b96ff69775bef5f4ab4e2fffd4337bb
++ sleep 10
++ SIM=32317
++ sleep 20
++ docker run --name sim --network eip --entrypoint /usr/local/bin/devicesim <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest '-url=ws://gw-0:8080/ingest?ack=1,ws://gw-1:8080/ingest?ack=1' -devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120 -rate=10 -out=stdout
+++ date +%s%3N
++ FAULT_MS=1795210828892
++ '[' crash = crash ']'
++ docker kill -s KILL gw-1
+gw-1
++ echo 'SIGKILL gw-1 (Docker restarts it with the same spool volume)'
++ echo FAULT_MS=1795210828892
++ wait 32317
++ docker run --rm --network eip --entrypoint /usr/local/bin/verify <account>.dkr.ecr.us-east-1.amazonaws.com/event-ingestion-platform:latest -devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120 -redis=redis:6379 -brokers=kafka:9092 -topic=readings-gateway-crash -out=stdout
++ docker ps -a --format '{{.Names}} {{.Status}}'
++ aws s3 cp /root/eip-results s3://eip-results-<account>-r11201636/r11201636/ --recursive --region us-east-1
+Completed 32 Bytes/1.2 MiB (567 Bytes/s) with 9 file(s) remainingupload: root/eip-results/baseline-fault.txt to s3://eip-results-<account>-r11201636/r11201636/baseline-fault.txt
+Completed 32 Bytes/1.2 MiB (567 Bytes/s) with 8 file(s) remainingCompleted 201 Bytes/1.2 MiB (3.3 KiB/s) with 8 file(s) remaining upload: root/eip-results/baseline-containers.txt to s3://eip-results-<account>-r11201636/r11201636/baseline-containers.txt
+Completed 201 Bytes/1.2 MiB (3.3 KiB/s) with 7 file(s) remainingCompleted 380 Bytes/1.2 MiB (5.9 KiB/s) with 7 file(s) remainingupload: root/eip-results/gateway-crash-containers.txt to s3://eip-results-<account>-r11201636/r11201636/gateway-crash-containers.txt
+Completed 380 Bytes/1.2 MiB (5.9 KiB/s) with 6 file(s) remainingCompleted 464 Bytes/1.2 MiB (6.9 KiB/s) with 6 file(s) remainingupload: root/eip-results/gateway-crash-fault.txt to s3://eip-results-<account>-r11201636/r11201636/gateway-crash-fault.txt
+Completed 464 Bytes/1.2 MiB (6.9 KiB/s) with 5 file(s) remainingCompleted 720 Bytes/1.2 MiB (10.7 KiB/s) with 5 file(s) remainingupload: root/eip-results/host.txt to s3://eip-results-<account>-r11201636/r11201636/host.txt
+Completed 720 Bytes/1.2 MiB (10.7 KiB/s) with 4 file(s) remainingCompleted 9.3 KiB/1.2 MiB (141.3 KiB/s) with 4 file(s) remaining upload: root/eip-results/gateway-crash-devicesim.log to s3://eip-results-<account>-r11201636/r11201636/gateway-crash-devicesim.log
+Completed 9.3 KiB/1.2 MiB (141.3 KiB/s) with 3 file(s) remainingCompleted 14.0 KiB/1.2 MiB (191.9 KiB/s) with 3 file(s) remainingupload: root/eip-results/baseline-devicesim.log to s3://eip-results-<account>-r11201636/r11201636/baseline-devicesim.log
+Completed 14.0 KiB/1.2 MiB (191.9 KiB/s) with 2 file(s) remainingCompleted 615.0 KiB/1.2 MiB (7.8 MiB/s) with 2 file(s) remaining upload: root/eip-results/baseline-verify.log to s3://eip-results-<account>-r11201636/r11201636/baseline-verify.log
+Completed 615.0 KiB/1.2 MiB (7.8 MiB/s) with 1 file(s) remainingCompleted 1.2 MiB/1.2 MiB (13.8 MiB/s) with 1 file(s) remaining upload: root/eip-results/gateway-crash-verify.log to s3://eip-results-<account>-r11201636/r11201636/gateway-crash-verify.log
++ echo done
++ aws s3 cp /root/eip-results/DONE s3://eip-results-<account>-r11201636/r11201636/DONE --region us-east-1
+Completed 5 Bytes/5 Bytes (130 Bytes/s) with 1 file(s) remainingupload: root/eip-results/DONE to s3://eip-results-<account>-r11201636/r11201636/DONE
++ shutdown -h +1
+Shutdown scheduled for Fri 2026-11-20 21:42:17 UTC, use 'shutdown -c' to cancel.
++ upload_log
++ aws s3 cp /var/log/eip-run.log s3://eip-results-<account>-r11201636/r11201636/eip-run.log --region us-east-1

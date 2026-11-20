@@ -1,0 +1,150 @@
+# The platform itself. __TOPIC__ and __GROUP__ are filled in per run by
+# scripts/kind_failover.sh, so every experiment starts on a fresh topic and a
+# fresh consumer group.
+#
+# Gateways are a StatefulSet so each replica keeps its spool volume across a
+# restart: a reading acked from the spool is drained by the same replica when
+# it comes back. Readiness is the gRPC health service on the admin port; on
+# SIGTERM a replica turns NOT_SERVING and closes its device connections, and
+# devices reconnect through the Service to the other replicas.
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  selector:
+    app: gateway
+  ports:
+    - name: devices
+      port: 8080
+    - name: admin
+      port: 9090
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-headless
+spec:
+  clusterIP: None
+  selector:
+    app: gateway
+  ports:
+    - name: admin
+      port: 9090
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gateway
+spec:
+  serviceName: gateway-headless
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: gateway
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 15
+      securityContext:
+        fsGroup: 65532
+      containers:
+        - name: gateway
+          image: eip:dev
+          imagePullPolicy: Never
+          command: ["/usr/local/bin/gateway"]
+          args:
+            - -addr=0.0.0.0:8080
+            - -admin-addr=0.0.0.0:9090
+            - -brokers=kafka-0.kafka-headless.default.svc.cluster.local:9092,kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092
+            - -topic=__TOPIC__
+            - -create-topic
+            - -partitions=12
+            - -replication=3
+            - -min-isr=2
+            - -acks-all
+            - -produce-timeout=1s
+            - -spool=/var/lib/gateway/spool.dat
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 8080
+            - containerPort: 9090
+          readinessProbe:
+            grpc:
+              port: 9090
+            periodSeconds: 1
+            failureThreshold: 1
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: spool
+              mountPath: /var/lib/gateway
+  volumeClaimTemplates:
+    - metadata:
+        name: spool
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: applier
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: applier
+  template:
+    metadata:
+      labels:
+        app: applier
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: applier
+          image: eip:dev
+          imagePullPolicy: Never
+          command: ["/usr/local/bin/applier"]
+          args:
+            - -brokers=kafka-0.kafka-headless.default.svc.cluster.local:9092,kafka-1.kafka-headless.default.svc.cluster.local:9092,kafka-2.kafka-headless.default.svc.cluster.local:9092
+            - -topic=__TOPIC__
+            - -group=__GROUP__
+            - -redis=redis:6379
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 250m
+              memory: 64Mi
+            limits:
+              memory: 256Mi

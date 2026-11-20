@@ -28,9 +28,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 
-	"device-telemetry-gateway/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
 )
 
 // cappedProducer simulates a downstream with a fixed sustained throughput

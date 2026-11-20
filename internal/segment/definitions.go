@@ -36,15 +36,15 @@ const (
 // evaluators range over its output rather than hand-maintaining their own
 // copy).
 type Segment struct {
-	ID           string
-	Family       Family
-	MinCount     int     // purchase_count_min, category_view_min
-	WindowDays   int     // purchase_count_min, purchase_value_min
-	Category     string  // category_view_min
-	MinValue     float64 // purchase_value_min
-	MinHours     int     // recently_active_hours
-	MinDays      int     // cart_abandon_days, churn_risk_days
-	MinDistinct  int     // multi_category_shopper_min
+	ID          string
+	Family      Family
+	MinCount    int     // purchase_count_min, category_view_min
+	WindowDays  int     // purchase_count_min, purchase_value_min
+	Category    string  // category_view_min
+	MinValue    float64 // purchase_value_min
+	MinHours    int     // recently_active_hours
+	MinDays     int     // cart_abandon_days, churn_risk_days
+	MinDistinct int     // multi_category_shopper_min
 }
 
 // Categories is the fixed set of storefront product categories this

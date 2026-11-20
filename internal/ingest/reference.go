@@ -6,7 +6,7 @@ import (
 	"math"
 	"sort"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // FinalStateDigest reduces a set of Readings to one deterministic SHA-256

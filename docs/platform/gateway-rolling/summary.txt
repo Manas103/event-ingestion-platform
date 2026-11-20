@@ -1,0 +1,32 @@
+scenario: gateway-rolling
+fault: statefulset.apps/gateway restarted
+fault at t+20.8 s of a 67.8 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 214, acked 632000; disconnects 1771, failed redials 1353
+ack rate: 10000/s before the fault, lowest 1 s window after it 8589/s
+recovered to 90% of the pre-fault ack rate (held 3 s): 0.0 s after the fault
+device reconnect gap (connection lost to first ack after reconnecting), n=1771: p50 52 ms, p99 3860 ms, max 4569 ms
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 100 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 17710 applied again (redelivered or duplicated in the log)
+kafka log: 615664 messages, 600000 distinct readings, 15664 duplicate messages (2.544%)
+end-to-end latency, first send to applied, every sampled message (61769 samples): p50=20 ms p99=35125 ms p99.9=53931 ms max=61516 ms
+  of which first application of a reading (59984 samples): p50=20 ms p99=538 ms p99.9=1077 ms max=1203 ms
+  of which re-application (duplicate in the log or redelivery) (1785 samples): p50=28282 ms p99=58035 ms p99.9=60408 ms max=61516 ms
+  Kafka timestamp to applied (consumer side only) (61769 samples): p50=16 ms p99=673 ms p99.9=1194 ms max=1243 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+replica  received  duplicates  produced  spooled  drained    acks  spool_bytes  dedup_entries  conns  cordoned
+  gateway-0     14602         463     14139        0        0   14602            0          14139      0     false
+  gateway-1     19638         599     19039        0        0   19638            0          19039      0     false
+  gateway-2    351324       10991    340333        0        0  351324            0         340333      0     false
+after the run:
+pod/gateway-0 restarts=0
+pod/gateway-1 restarts=0
+pod/gateway-2 restarts=0
+applier-8f46f5d48-gzmzk   0     eip-worker
+applier-8f46f5d48-hc8qs   0     eip-worker2
+applier-8f46f5d48-zrtf4   0     eip-worker3
+kafka-0                   4     eip-worker
+kafka-1                   5     eip-worker2
+kafka-2                   4     eip-worker3

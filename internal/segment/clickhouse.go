@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // ClickHouseStore is the event store: a thin client over ClickHouse's plain

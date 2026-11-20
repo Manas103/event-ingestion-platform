@@ -1,5 +1,5 @@
-// loadgen is the reproducible measurement behind the resume claim: "final
-// state was bit-identical after a replay 5% duplicated and out of order".
+// loadgen is the reproducible replay-correctness measurement: is the final
+// state bit-identical after a replay that is 5% duplicated and out of order?
 // It starts a real gateway (real WebSocket server, real dedup, real Kafka
 // producer against the already-running broker), drives numDevices simulated
 // devices over real WebSocket connections with a delivery order that is 5%
@@ -17,10 +17,10 @@ import (
 	"net/http"
 	"time"
 
-	"device-telemetry-gateway/internal/ingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/simdevice"
-	"device-telemetry-gateway/internal/wsserver"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/simdevice"
+	"github.com/Manas103/event-ingestion-platform/internal/wsserver"
 )
 
 func main() {

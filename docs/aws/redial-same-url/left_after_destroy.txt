@@ -1,0 +1,8 @@
+checked after terraform destroy (run r11201636):
+instances not terminated: 0
+volumes: 0
+ECR repositories: 0
+S3 buckets: 0
+eip IAM roles: 0
+eip security groups: 0
+elastic IPs: 0

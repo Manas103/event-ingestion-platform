@@ -1,0 +1,77 @@
+#!/bin/bash
+# EC2 user data (a Terraform template): wait for the image in ECR, run the
+# platform in Docker, run a baseline and a gateway-crash experiment, upload
+# every log to S3, power off.
+set -uxo pipefail
+exec > /var/log/eip-run.log 2>&1
+OUT=/root/eip-results
+mkdir -p $OUT
+upload_log() { aws s3 cp /var/log/eip-run.log s3://${bucket}/${run_id}/eip-run.log --region ${region} || true; }
+trap upload_log EXIT
+
+dnf install -y docker
+systemctl enable --now docker
+TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 300")
+{
+  curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-type; echo
+  uname -r; nproc; free -m
+} > $OUT/host.txt
+
+for i in $(seq 1 120); do
+  aws ecr describe-images --repository-name event-ingestion-platform --image-ids imageTag=latest --region ${region} >/dev/null 2>&1 && break
+  sleep 10
+done
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registry}
+docker pull ${image}
+
+DRUN="docker run -d --network eip --restart unless-stopped"
+BROKER=kafka:9092
+CORPUS="-devices=1000 -readings=600 -dup-fraction=0.05 -seed=20261120"
+
+run_experiment() { # name fault
+  local name=$1 fault=$2 topic=readings-$1
+  docker rm -f kafka redis gw-0 gw-1 ap-0 ap-1 sim >/dev/null 2>&1
+  docker network rm eip >/dev/null 2>&1
+  docker network create eip
+  $DRUN --name kafka -e KAFKA_NODE_ID=1 -e KAFKA_PROCESS_ROLES=broker,controller \
+    -e KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092 \
+    -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT \
+    -e KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+    -e KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0 -e KAFKA_AUTO_CREATE_TOPICS_ENABLE=false -e KAFKA_HEAP_OPTS="-Xms1g -Xmx1g" \
+    apache/kafka:3.9.1
+  $DRUN --name redis redis:7.4-alpine --save "" --appendonly no
+  sleep 15
+  for g in 0 1; do
+    $DRUN --name gw-$g -v gw-$g-$name:/var/lib/gateway --user root --entrypoint /usr/local/bin/gateway ${image} \
+      -addr=0.0.0.0:8080 -admin-addr=0.0.0.0:9090 -brokers=$BROKER -topic=$topic -create-topic -partitions=12 \
+      -replication=1 -min-isr=1 -acks-all -produce-timeout=1s -spool=/var/lib/gateway/spool.dat -replica=gw-$g
+  done
+  for a in 0 1; do
+    $DRUN --name ap-$a --entrypoint /usr/local/bin/applier ${image} \
+      -brokers=$BROKER -topic=$topic -group=ap-$name -redis=redis:6379 -member=ap-$a
+  done
+  sleep 10
+  docker run --name sim --network eip --entrypoint /usr/local/bin/devicesim ${image} \
+    "-url=ws://gw-0:8080/ingest?ack=1,ws://gw-1:8080/ingest?ack=1" $CORPUS -rate=10 -out=stdout > $OUT/$name-devicesim.log 2>&1 &
+  SIM=$!
+  sleep 20
+  FAULT_MS=$(date +%s%3N)
+  if [ "$fault" = crash ]; then
+    docker kill -s KILL gw-1
+    echo "SIGKILL gw-1 (Docker restarts it with the same spool volume)" > $OUT/$name-fault.txt
+  else
+    echo "no fault" > $OUT/$name-fault.txt
+  fi
+  echo "FAULT_MS=$FAULT_MS" >> $OUT/$name-fault.txt
+  wait $SIM
+  docker run --rm --network eip --entrypoint /usr/local/bin/verify ${image} \
+    $CORPUS -redis=redis:6379 -brokers=$BROKER -topic=$topic -out=stdout > $OUT/$name-verify.log 2>&1
+  docker ps -a --format '{{.Names}} {{.Status}}' > $OUT/$name-containers.txt
+}
+
+run_experiment baseline none
+run_experiment gateway-crash crash
+aws s3 cp $OUT s3://${bucket}/${run_id}/ --recursive --region ${region}
+echo done > $OUT/DONE
+aws s3 cp $OUT/DONE s3://${bucket}/${run_id}/DONE --region ${region}
+shutdown -h +1

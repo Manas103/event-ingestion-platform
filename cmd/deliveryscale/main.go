@@ -28,9 +28,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"device-telemetry-gateway/internal/deliverystats"
+	"github.com/Manas103/event-ingestion-platform/internal/deliverystats"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func genBatch(rng *rand.Rand, batchStart, batchSize int, historyDays int, now time.Time) []*pb.DeliveryWebhook {

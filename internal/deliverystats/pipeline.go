@@ -3,7 +3,7 @@ package deliverystats
 import (
 	"context"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // Producer is the narrow interface Pipeline needs from a Kafka writer.

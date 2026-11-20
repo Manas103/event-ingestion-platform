@@ -1,5 +1,5 @@
-// outagebench is the reproducible measurement behind the resume claim: "0
-// records lost across a 60-second simulated broker outage". Devices send
+// outagebench is the reproducible broker-outage measurement: are 0 records
+// lost across a 60-second simulated broker outage? Devices send
 // continuously, at a steady rate, before, during and after a window in which
 // the producer is made to fail every write (simulating the broker being
 // unreachable). Records that fail to produce during the outage are expected
@@ -22,10 +22,10 @@ import (
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 
-	"device-telemetry-gateway/internal/ingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/wsserver"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/wsserver"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func main() {

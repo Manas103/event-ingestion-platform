@@ -1,7 +1,7 @@
 // simwebhooks builds simulated provider delivery-webhook corpora: for each
 // outbound message, a small realistic lifecycle of webhooks (a "sent"
 // callback, then either "delivered" or "bounced"/"failed") spread across the
-// three channels the resume claims (email, SMS, WhatsApp), each with its own
+// three channels this module covers (email, SMS, WhatsApp), each with its own
 // simulated provider name, the way a real integration would route each
 // channel through a different vendor.
 package deliverystats
@@ -11,12 +11,11 @@ import (
 	"math/rand"
 	"time"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // Channels and their simulated provider, fixed so every benchmark in this
-// extension exercises the same three-channel, three-provider shape the
-// resume claims.
+// module exercises the same three-channel, three-provider shape.
 var Channels = []struct {
 	Name     string
 	Provider string

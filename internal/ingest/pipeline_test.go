@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // fakeProducer is an in-memory stand-in for Kafka. failUntilCall makes the
@@ -101,7 +101,7 @@ func TestPipelineDrainerDeliversSpooledReadingsOnceTheProducerRecovers(t *testin
 		t.Fatal("nothing should have been delivered yet")
 	}
 
-	p.drainOnce(context.Background())
+	p.DrainOnce(context.Background())
 
 	delivered := producer.snapshot()
 	if len(delivered) != 3 {

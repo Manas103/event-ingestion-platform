@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"device-telemetry-gateway/internal/ingest"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // Producer is the narrow interface Pipeline needs from a Kafka writer.

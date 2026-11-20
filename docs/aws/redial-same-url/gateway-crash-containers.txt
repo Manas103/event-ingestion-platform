@@ -1,0 +1,7 @@
+sim Exited (0) 3 seconds ago
+ap-1 Up About a minute
+ap-0 Up About a minute
+gw-1 Exited (137) 47 seconds ago
+gw-0 Up About a minute
+redis Up About a minute
+kafka Up About a minute

@@ -22,11 +22,11 @@ import (
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
 
-	"device-telemetry-gateway/internal/ingest"
-	"device-telemetry-gateway/internal/kafkaclient"
-	"device-telemetry-gateway/internal/locationping"
-	"device-telemetry-gateway/internal/locationwsserver"
-	pb "device-telemetry-gateway/proto"
+	"github.com/Manas103/event-ingestion-platform/internal/ingest"
+	"github.com/Manas103/event-ingestion-platform/internal/kafkaclient"
+	"github.com/Manas103/event-ingestion-platform/internal/locationping"
+	"github.com/Manas103/event-ingestion-platform/internal/locationwsserver"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 func main() {

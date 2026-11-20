@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package storefront;
 
-option go_package = "device-telemetry-gateway/proto";
+option go_package = "github.com/Manas103/event-ingestion-platform/proto";
 
 // StorefrontEvent is one simulated storefront interaction, sent as a single
 // binary protobuf frame to the event edge. event_id is what this edge's

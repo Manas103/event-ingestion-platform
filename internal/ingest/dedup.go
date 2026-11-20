@@ -66,6 +66,25 @@ func (d *Dedup) Admit(deviceID string, sequence uint64) bool {
 	return true
 }
 
+// Forget undoes an Admit whose reading could not be made durable (neither
+// produced nor spooled), so the device's resend of it is admitted again
+// instead of being dropped as a duplicate of a reading that was never kept.
+func (d *Dedup) Forget(deviceID string, sequence uint64) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	ds, ok := d.seen[deviceID]
+	if !ok || !ds.set[sequence] {
+		return
+	}
+	delete(ds.set, sequence)
+	for i, s := range ds.order {
+		if s == sequence {
+			ds.order = append(ds.order[:i], ds.order[i+1:]...)
+			break
+		}
+	}
+}
+
 // EntryCount returns the total number of sequences currently remembered
 // across every device, the direct measurement the soak benchmark and its
 // regression test use to confirm memory stays bounded.

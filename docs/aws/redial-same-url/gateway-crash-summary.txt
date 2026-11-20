@@ -1,0 +1,25 @@
+scenario: gateway-crash
+fault: SIGKILL gw-1 (Docker restarts it with the same spool volume)
+fault at t+19.6 s of a 63.6 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 495, acked 632000; disconnects 500, failed redials 500
+ack rate: 10147/s before the fault, lowest 1 s window after it 8278/s
+recovered to 90% of the pre-fault ack rate (held 3 s): 0.6 s after the fault
+device reconnect gap (connection lost to first ack after reconnecting), n=500: p50 289 ms, p99 388 ms, max 407 ms
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 0 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 6694 applied again (redelivered or duplicated in the log)
+kafka log: 606694 messages, 600000 distinct readings, 6694 duplicate messages (1.103%)
+end-to-end latency, first send to applied, every sampled message (60668 samples): p50=28 ms p99=10307 ms p99.9=51860 ms max=60951 ms
+  of which first application of a reading (60005 samples): p50=28 ms p99=733 ms p99.9=1180 ms max=1403 ms
+  of which re-application (duplicate in the log or redelivery) (663 samples): p50=30958 ms p99=58489 ms p99.9=60591 ms max=60951 ms
+  Kafka timestamp to applied (consumer side only) (60668 samples): p50=20 ms p99=93 ms p99.9=184 ms max=314 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+sim Exited (0) 3 seconds ago
+ap-1 Up About a minute
+ap-0 Up About a minute
+gw-1 Exited (137) 47 seconds ago
+gw-0 Up About a minute
+redis Up About a minute
+kafka Up About a minute

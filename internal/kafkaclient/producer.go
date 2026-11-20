@@ -10,7 +10,7 @@ import (
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 
-	pb "device-telemetry-gateway/proto"
+	pb "github.com/Manas103/event-ingestion-platform/proto"
 )
 
 // Producer publishes each Reading as one Kafka message, keyed by device id
@@ -49,7 +49,7 @@ func (p *Producer) Close() error {
 // OutageInjectingProducer wraps a real Producer and fails every call while
 // the outage window is active, so a test can exercise the spool/drain path
 // deterministically without needing to stop the actual shared Kafka broker.
-// The 60-second "simulated broker outage" in the resume claim is simulated
+// The 60-second "simulated broker outage" of cmd/outagebench is simulated
 // exactly here: the producer, not the broker, refuses to accept writes.
 type OutageInjectingProducer struct {
 	inner       *Producer

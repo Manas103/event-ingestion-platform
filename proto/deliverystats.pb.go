@@ -129,7 +129,7 @@ const file_deliverystats_proto_rawDesc = "" +
 	"\achannel\x18\x03 \x01(\tR\achannel\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\tR\x06status\x12!\n" +
 	"\ftimestamp_ms\x18\x05 \x01(\x03R\vtimestampMs\x12\x1a\n" +
-	"\bprovider\x18\x06 \x01(\tR\bproviderB Z\x1edevice-telemetry-gateway/protob\x06proto3"
+	"\bprovider\x18\x06 \x01(\tR\bproviderB4Z2github.com/Manas103/event-ingestion-platform/protob\x06proto3"
 
 var (
 	file_deliverystats_proto_rawDescOnce sync.Once

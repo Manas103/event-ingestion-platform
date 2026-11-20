@@ -1,0 +1,10 @@
+# Four-node local cluster: one control plane, three workers, so each Kafka
+# broker and each gateway replica can sit on its own node.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: eip
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker
+  - role: worker

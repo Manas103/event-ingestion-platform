@@ -1,0 +1,30 @@
+scenario: baseline
+fault: no fault
+fault at t+20.7 s of a 63.3 s run; 1000 devices x 600 readings at 10/s each
+frames: sent 632000, resent after reconnect 0, acked 632000; disconnects 0, failed redials 0
+ack rate: 10000/s before the fault, lowest 1 s window after it 9784/s
+consumer group: longest stretch with nothing applied in the 30 s after the fault (while devices were still sending): 0 ms
+expected: 600000 unique readings from 1000 devices
+redis store: 600000 readings stored, 0 missing, 0 extra, 0 wrong value
+applier counters: 600000 applied new, 0 applied again (redelivered or duplicated in the log)
+kafka log: 600000 messages, 600000 distinct readings, 0 duplicate messages (0.000%)
+end-to-end latency, first send to applied, every sampled message (60000 samples): p50=20 ms p99=53 ms p99.9=128 ms max=179 ms
+  of which first application of a reading (60000 samples): p50=20 ms p99=53 ms p99.9=128 ms max=179 ms
+  of which re-application (duplicate in the log or redelivery) (0 samples): p50=0 ms p99=0 ms p99.9=0 ms max=0 ms
+  Kafka timestamp to applied (consumer side only) (60000 samples): p50=16 ms p99=41 ms p99.9=86 ms max=114 ms
+RESULT: zero lost, zero extra, final state digest identical to the reference: true
+after the run:
+replica  received  duplicates  produced  spooled  drained    acks  spool_bytes  dedup_entries  conns  cordoned
+  gateway-0    216776       10976    205800        0        0  216776            0         205800      0     false
+  gateway-1    202240       10240    192000        0        0  202240            0         192000      0     false
+  gateway-2    212984       10784    202200        0        0  212984            0         202200      0     false
+after the run:
+pod/gateway-0 restarts=0
+pod/gateway-1 restarts=0
+pod/gateway-2 restarts=0
+applier-9cc8d6c6-6vlrm   0     eip-worker
+applier-9cc8d6c6-dx6xq   0     eip-worker3
+applier-9cc8d6c6-mch45   0     eip-worker2
+kafka-0                  4     eip-worker
+kafka-1                  5     eip-worker2
+kafka-2                  4     eip-worker3

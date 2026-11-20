@@ -111,7 +111,7 @@ const file_locationping_proto_rawDesc = "" +
 	"\bsequence\x18\x02 \x01(\x04R\bsequence\x12!\n" +
 	"\ftimestamp_ms\x18\x03 \x01(\x03R\vtimestampMs\x12\x10\n" +
 	"\x03lat\x18\x04 \x01(\x01R\x03lat\x12\x10\n" +
-	"\x03lon\x18\x05 \x01(\x01R\x03lonB Z\x1edevice-telemetry-gateway/protob\x06proto3"
+	"\x03lon\x18\x05 \x01(\x01R\x03lonB4Z2github.com/Manas103/event-ingestion-platform/protob\x06proto3"
 
 var (
 	file_locationping_proto_rawDescOnce sync.Once

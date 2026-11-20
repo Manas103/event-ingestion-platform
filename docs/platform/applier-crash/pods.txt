@@ -1,0 +1,9 @@
+pod/gateway-0 restarts=0
+pod/gateway-1 restarts=0
+pod/gateway-2 restarts=0
+applier-696495b748-9fnsp   1     eip-worker
+applier-696495b748-pr5mw   0     eip-worker3
+applier-696495b748-qf2z6   0     eip-worker2
+kafka-0                    4     eip-worker
+kafka-1                    6     eip-worker2
+kafka-2                    4     eip-worker3
