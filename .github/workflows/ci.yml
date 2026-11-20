@@ -55,7 +55,8 @@ jobs:
           FAULT_AT: "10"
         run: scripts/kind_failover.sh gateway-crash
       - name: check result
-        run: grep -q "RESULT: zero lost, zero extra, final state digest identical to the reference: true" results/gateway-crash/verify.log
+        run: |
+          grep -q "RESULT: zero lost, zero extra, final state digest identical to the reference: true" results/gateway-crash/verify.log
       - if: always()
         uses: actions/upload-artifact@v4
         with:
